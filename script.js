@@ -5,46 +5,65 @@ const resultDiv = document.getElementById("result");
 const questionText = document.getElementById("questionText");
 
 let score = 0;
+let step = 1;
 
 nextBtn.addEventListener("click", () => {
-    if (input.value.trim() === "") {
-        alert("Type something first.");
-        return;
-    }
+  if (input.value.trim() === "") {
+    alert("Type something first.");
+    return;
+  }
 
-    questionText.textContent = "How tired are you right now?";
-    input.classList.add("hidden");
-    nextBtn.classList.add("hidden");
+  input.classList.add("hidden");
+  nextBtn.classList.add("hidden");
 
-    showOptions([
-        { text: "Very tired", value: -2 },
-        { text: "A little tired", value: -1 },
-        { text: "Fine", value: 1 }
-    ]);
+  askTiredness();
 });
 
-function showOptions(options) {
-    optionsDiv.innerHTML = "";
-    optionsDiv.classList.remove("hidden");
+function askTiredness() {
+  questionText.textContent = "How tired are you right now?";
+  showOptions([
+    { text: "Very tired", value: -2 },
+    { text: "A little tired", value: -1 },
+    { text: "Fine", value: 1 }
+  ], askUrgency);
+}
 
-    options.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.textContent = opt.text;
-        btn.onclick = () => {
-            score += opt.value;
-            showResult();
-        };
-        optionsDiv.appendChild(btn);
-    });
+function askUrgency() {
+  questionText.textContent = "How urgent is this?";
+  showOptions([
+    { text: "Can wait", value: -1 },
+    { text: "Somewhat urgent", value: 1 },
+    { text: "Very urgent", value: 2 }
+  ], showResult);
+}
+
+function showOptions(options, nextStep) {
+  optionsDiv.innerHTML = "";
+  optionsDiv.classList.remove("hidden");
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt.text;
+    btn.onclick = () => {
+      score += opt.value;
+      optionsDiv.classList.add("hidden");
+      nextStep();
+    };
+    optionsDiv.appendChild(btn);
+  });
 }
 
 function showResult() {
-    optionsDiv.classList.add("hidden");
-    resultDiv.classList.remove("hidden");
+  resultDiv.classList.remove("hidden");
 
-    if (score <= -1) {
-        resultDiv.textContent = "Sleep or take a break. Your brain is done.";
-    } else {
-        resultDiv.textContent = "Do it now. You have enough energy.";
-    }
+  if (score <= -2) {
+    resultDiv.textContent =
+      "Take a break or sleep. Forcing this will backfire.";
+  } else if (score <= 1) {
+    resultDiv.textContent =
+      "Delay it slightly. Do something light, then decide again.";
+  } else {
+    resultDiv.textContent =
+      "Do it now. You’re capable and it actually matters.";
+  }
 }
